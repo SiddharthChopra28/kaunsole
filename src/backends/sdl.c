@@ -164,11 +164,7 @@ uint8_t backend_load_roms(char paths[8][64]) {
     return i;
 }
 
-<<<<<<< Updated upstream
-void backend_sleep(uint32_t ms) { SDL_Delay(ms); }
-=======
 void backend_sleep(uint32_t ms) {
     SDL_Delay(ms);
 }
  
->>>>>>> Stashed changes
