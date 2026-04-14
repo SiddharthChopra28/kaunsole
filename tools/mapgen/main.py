@@ -30,8 +30,6 @@ for x in range(width):
         o += b
         o += flag_h
         o += flag_v
-        o += '0'
-        o += '0'
         buffer += o
                 
 print(buffer)
