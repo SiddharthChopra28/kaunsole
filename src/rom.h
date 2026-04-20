@@ -8,4 +8,3 @@ struct rom {
     void (*draw)();
     int running;
 };
-

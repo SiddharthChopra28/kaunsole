@@ -14,31 +14,31 @@
 
 struct engine engine = {0};
 
-void compute_audio(uint16_t num_samples) {
-    int16_t samples[num_samples];
-    memset(samples, 0, num_samples);
+// void compute_audio(uint16_t num_samples) {
+//     int16_t samples[num_samples];
+//     memset(samples, 0, num_samples);
 
-    for (int i = 0; i < AUDIO_QUEUE_LEN; i++) {
-        struct audio_event *event = &engine.audio_queue[i];
-        if (event->priority != 0) {
-            uint16_t to_read;
-            uint16_t left =
-                event->sampler.sample->length - event->sampler.position;
-            if (left < num_samples) {
-                event->priority = 0;
-                to_read = left;
-            } else
-                to_read = num_samples;
+//     for (int i = 0; i < AUDIO_QUEUE_LEN; i++) {
+//         struct audio_event *event = &engine.audio_queue[i];
+//         if (event->priority != 0) {
+//             uint16_t to_read;
+//             uint16_t left =
+//                 event->sampler.sample->length - event->sampler.position;
+//             if (left < num_samples) {
+//                 event->priority = 0;
+//                 to_read = left;
+//             } else
+//                 to_read = num_samples;
 
-            for (int i = 0; i < to_read; i++) {
-                samples[i] =
-                    MIN(samples[i] + event->sampler.sample->data[i], INT16_MAX);
-            }
-        }
-    }
+//             for (int i = 0; i < to_read; i++) {
+//                 samples[i] =
+//                     MIN(samples[i] + event->sampler.sample->data[i], INT16_MAX);
+//             }
+//         }
+//     }
 
-    // push samples to ringbuffer
-}
+//     // push samples to ringbuffer
+// }
 
 void mainloop(struct rom *rom) {
     uint32_t gametime = 0;
@@ -62,7 +62,7 @@ void mainloop(struct rom *rom) {
         // gametime = time;
 
         uint16_t audio_samples = 800; // calculate samples from deltatime
-        compute_audio(audio_samples);
+        // compute_audio(audio_samples);
 
         backend_render(engine.pixelbuf, engine.palette);
 

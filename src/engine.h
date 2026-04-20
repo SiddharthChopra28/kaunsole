@@ -1,25 +1,16 @@
 #pragma once
 
-#include "audio.h"
 #include "graphics.h"
-#include "input.h"
 
 #define AUDIO_QUEUE_LEN 8
 #define AUDIO_BUFFER_SIZE 2400
 #define RENDER_QUEUE_LEN 16
 
 struct engine {
-    struct audio_event audio_queue[AUDIO_QUEUE_LEN];
-    struct render_command render_queue[RENDER_QUEUE_LEN];
-    // uint32_t framebuffer[Y_RESOLUTION][X_RESOLUTION]; // RGBA32
     uint8_t pixelbuf[Y_RESOLUTION][X_RESOLUTION];
-    uint8_t audio_buffer[AUDIO_BUFFER_SIZE];
-    struct {
-        uint32_t readindex;
-        uint32_t writeindex;
-    } audio_ring;
     struct tileset tileset;
     uint32_t *palette;
+    uint32_t objbuf[Y_RESOLUTION / BLOCK_SIZE][X_RESOLUTION / BLOCK_SIZE];
 };
 
 extern struct engine engine;

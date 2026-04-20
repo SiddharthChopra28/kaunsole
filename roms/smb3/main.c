@@ -7,6 +7,10 @@
 #include "../../src/rom.h"
 #include "../../src/sprite.h"
 
+#include "defs.h"
+#include "obj.h"
+#include "camera.h"
+
 #define NUM_X_BLOCKS 8
 #define NUM_Y_BLOCKS 4
 #define BLOCK_WIDTH 40
@@ -19,60 +23,56 @@
 #define Y_VEL 2
 #define PADDLE_Y 232
 
-#define TILESET_ROW_OFFSET 16
-#define TILESET_PAGE_OFFSET (TILESET_ROW_OFFSET * 32)
-#define TILE(page, row, column)                                                \
-    (page * TILESET_PAGE_OFFSET + row * TILESET_ROW_OFFSET + column)
+const uint32_t map[] = {
+    O2(0, 7, 3, 7, 5, 0),
+    // O2(1, 8, 8, 4, 5, 0) | O2_NEXT_PAGE,
+    O2(2, 8, 8, 7, 2, 0) | O2_NEXT_PAGE,
+    // O2_INDEX(0) | O2_Y(3) | O2_X(7) | O2_WIDTH(7) | O2_HEIGHT(5) | O2_PALETTE(0), 
+    // O2_INDEX(1) | O2_Y(8) | O2_X(8) | O2_WIDTH(4) | O2_HEIGHT(5) | O2_PALETTE(0) | O2_NEXT_PAGE, 
+    0,
+};
 
-#define CLAMP(a, b, c) (a < b ? b : (a < c ? a : c))
-#define ABS(a) (a < 0 ? -a : a)
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-uint8_t page = 0;
-
-struct texture tex_mario_stand = {
+static const struct texture tex_mario_stand = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){60, 62, 61, 63},
-    .num_tiles = 4,
+    .num_frames = 1,
 };
 
-struct texture tex_mario_run = {
+static const struct texture tex_mario_run = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){TILE(10, 12, 4), TILE(10, 12, 6), TILE(10, 12, 5),
                           TILE(10, 12, 7), TILE(10, 12, 0), TILE(10, 12, 2),
                           TILE(10, 12, 1), TILE(10, 12, 3)},
-    .num_tiles = 8,
+    .num_frames = 2,
 };
 
-struct texture tex_mario_turn = {
+static const struct texture tex_mario_turn = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){TILE(10, 14, 0), TILE(10, 14, 2), TILE(10, 14, 1),
                           TILE(10, 14, 3)},
-    .num_tiles = 4,
+    .num_frames = 1,
 };
 
-struct texture tex_mario_jump = {
+static const struct texture tex_mario_jump = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){TILE(10, 13, 8), TILE(10, 13, 10), TILE(10, 13, 9),
                           TILE(10, 13, 11)},
-    .num_tiles = 4,
+    .num_frames = 1,
 };
 
-struct texture tex_mario_die = {
+static const struct texture tex_mario_die = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){TILE(10, 12, 12), TILE(10, 12, 12) | 1 << 15,
                           TILE(10, 12, 13), TILE(10, 12, 13) | 1 << 15},
-    // .tiles = (uint16_t []){ 471, 471 | 1 << 15, 472, 472 | 1 << 15 },
-    .num_tiles = 4,
+    .num_frames = 1,
 };
 
-struct texture tex_mario_hold = {
+static const struct texture tex_mario_hold = {
     .height = 2,
     .width = 2,
     .tiles =
@@ -86,28 +86,15 @@ struct texture tex_mario_hold = {
             TILE(10, 11, 1),
             TILE(10, 11, 3),
         },
-    .num_tiles = 8,
+    .num_frames = 2,
 };
 
-struct texture tex_box = {
+static const struct texture tex_box = {
     .height = 2,
     .width = 2,
     .tiles = (uint16_t[]){TILE(1, 17, 12), TILE(1, 18, 12), TILE(1, 17, 13),
                           TILE(1, 18, 13)},
-    .num_tiles = 4,
-};
-
-struct entity {
-    struct sprite sprite;
-    int8_t x_dir;
-    float y_vel;
-    float x_vel;
-    float x_accel;
-    float y_accel;
-    float x_accumulator;
-    float y_accumulator;
-    bool falling;
-    uint8_t holding;
+    .num_frames = 1,
 };
 
 uint16_t font[256] = {0};
@@ -129,23 +116,6 @@ struct entity mario = {
 
     .falling = false,
 };
-
-// struct entity box = {
-//     .sprite = {
-//         .texture = &tex_box,
-//         .palette = 0,
-//         .attributes = 0,
-//         .x = 40,
-//         .hitbox = {
-//             .x = 0,
-//             .y = 0,
-//             .height = 16,
-//             .width = 16,
-//         },
-//     },
-
-//     .falling = false,
-// };
 
 #define box entities[1]
 
@@ -174,8 +144,9 @@ struct entity entities[NUM_ENTITIES] = {0};
 // struct sprite* spr_mario = &mario.entity.sprite;
 
 uint32_t palette[256] = {
-    0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000, 0xFFFFFFFF, 0xFFAAAAAA,
-    0xFF555555, 0xFF000000, 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000,
+    0xFFFFFFFF, 0xFFFFD395, 0xFFE00000, 0xFF000000,
+    0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000,
+    0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000,
     0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000,
 };
 
@@ -211,14 +182,6 @@ void run() {
 }
 
 uint8_t tile_attr = 0;
-
-void draw_once() {
-    for (int y = 0; y < 32; y++) {
-        for (int x = 0; x < 16; x++) {
-            draw_tile(TILE(page, y, x), y * 8, x * 8, 0, tile_attr);
-        }
-    }
-}
 
 void move_entity(struct entity *entity) {
     entity->x_accumulator += entity->x_vel;
@@ -312,6 +275,8 @@ void init() {
     font[' '] = TILE(14, 23, 15);
 
     font['-'] = TILE(2, 28, 14);
+
+    load_map(map);
 }
 
 bool had_y = false;
@@ -420,6 +385,7 @@ void update(struct input input, uint32_t time) {
         }
 
         if (mario.y_vel > 0) {
+            // spr_mario.texture = &tex_mario_die;
             spr_mario.texture = &tex_mario_jump;
         } else if (mario.y_vel < 0) {
             spr_mario.texture = &tex_mario_jump;
@@ -477,6 +443,8 @@ void draw() {
     //     }
     // }
     clear_pixelbuf();
+
+    camera_draw();
 
     char buf[64];
     snprintf(buf, 64, "X VEL %f", mario.x_vel);

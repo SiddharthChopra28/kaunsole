@@ -96,13 +96,12 @@ void draw_text(const char *text, struct font *font, uint16_t y, uint16_t x,
 
 void draw_sprite(struct sprite *sprite) {
     // Add flips
-    struct texture *texture = sprite->texture;
+    const struct texture *texture = sprite->texture;
     uint8_t num_tiles = texture->height * texture->width;
 
     uint8_t attributes = sprite->attributes;
     uint8_t tile =
-        (sprite->frame % (sprite->texture->num_tiles /
-                          (sprite->texture->height * sprite->texture->width))) *
+        (sprite->frame % sprite->texture->num_frames) *
         texture->width * texture->height;
 
     if (attributes & FLIP_Y) {
@@ -145,8 +144,6 @@ void draw_sprite(struct sprite *sprite) {
 }
 
 void next_frame(struct sprite *sprite) {
-    sprite->frame = (sprite->frame + 1) %
-                    (sprite->texture->num_tiles /
-                     (sprite->texture->height * sprite->texture->width));
-    // fprintf(stderr, "frame: %d", sprite->frame);
+    sprite->frame = (sprite->frame + 1) % sprite->texture->num_frames;
 }
+

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define X_RESOLUTION 256
@@ -8,6 +9,7 @@
 // #define Y_RESOLUTION 240
 
 #define TILE_SIZE 8
+#define BLOCK_SIZE (2 * TILE_SIZE)
 #define BPP 2
 #define PALETTE_SIZE (1 << BPP)
 #define ROW_OFFSET (TILESET_SIZE * BPP / 8)
@@ -19,8 +21,8 @@ struct render_command {
 struct texture {
     uint8_t width;
     uint8_t height;
-    uint8_t num_tiles;
-    uint16_t *tiles;
+    uint8_t num_frames;
+    const uint16_t *tiles;
 };
 
 struct hitbox {
@@ -31,13 +33,14 @@ struct hitbox {
 };
 
 struct sprite {
-    struct texture *texture;
+    const struct texture *texture;
     struct hitbox hitbox;
     uint8_t frame;
     uint8_t attributes;
     uint8_t palette;
     uint8_t y;
     uint8_t x;
+    int8_t falling;
 };
 
 struct tileset {
@@ -46,12 +49,6 @@ struct tileset {
 
 struct font {
     uint16_t offset;
-};
-
-struct palette {
-    uint8_t r[1 << BPP];
-    uint8_t g[1 << BPP];
-    uint8_t b[1 << BPP];
 };
 
 typedef uint16_t *fnt;
