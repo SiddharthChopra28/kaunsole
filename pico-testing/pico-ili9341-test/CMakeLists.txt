@@ -45,7 +45,10 @@ add_executable(pico_ili9341_test
         ../../roms/smb3/camera.c
         ${CHR_OBJ}
         )
-target_compile_definitions(pico_ili9341_test PRIVATE STATIC_ROM)
+target_compile_definitions(pico_ili9341_test PRIVATE
+        STATIC_ROM
+        PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=5000
+        )
 
 target_link_libraries(pico_ili9341_test pico_stdlib ili9341 gfx)
 

@@ -42,20 +42,39 @@ struct engine engine = {0};
 
 void mainloop(struct rom *rom) {
     uint32_t gametime = 0;
+#ifdef STATIC_ROM
+    printf("[engine] 8: entering mainloop\n");
+#endif
     rom->init();
     LOG("inited");
+#ifdef STATIC_ROM
+    printf("[engine] 9: ROM initialized\n");
+#endif
 
     while (rom->running) {
+#ifdef STATIC_ROM
+        static uint32_t frame;
+        if (frame == 0)
+            printf("[engine] first frame update started\n");
+#endif
         struct input i = backend_input();
         uint32_t time = backend_time();
 
         rom->update(i, time);
+#ifdef STATIC_ROM
+        if (frame == 0)
+            printf("[engine] first frame update finished\n");
+#endif
 
         // uint32_t update_time = backend_time() - time;
 
         // if (update_time > FRAME_MS) {
         // } else {
         rom->draw();
+#ifdef STATIC_ROM
+        if (frame == 0)
+            printf("[engine] first frame draw finished\n");
+#endif
         // }
 
         // time = backend_time();
@@ -65,11 +84,18 @@ void mainloop(struct rom *rom) {
         // compute_audio(audio_samples);
 
         backend_render(engine.pixelbuf, engine.palette);
+#ifdef STATIC_ROM
+        if (frame == 0)
+            printf("[engine] first frame render finished\n");
+#endif
 
         uint32_t deltatime = backend_time() - time;
         if (deltatime < FRAME_MS) {
             backend_sleep(FRAME_MS - deltatime);
         }
+#ifdef STATIC_ROM
+        frame++;
+#endif
     }
 }
 
@@ -132,7 +158,9 @@ struct rom ui_rom = {
 extern struct rom rom;
 
 int main(void) {
+    printf("[engine] 0: main entered\n");
     backend_init();
+    printf("[engine] 7: backend initialized\n");
     mainloop(&rom);
 }
 #else

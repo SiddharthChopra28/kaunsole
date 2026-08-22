@@ -15,18 +15,23 @@
 #define PIN_DC   4
 
 void backend_init(){
-
     stdio_init_all();
+    printf("[pico] 1: stdio initialized\n");
 
 	LCD_setPins(PIN_DC, PIN_CS, PIN_RST, PIN_SCK, PIN_MOSI);
+	printf("[pico] 2: LCD pins configured\n");
 	LCD_setSPIperiph(spi0);
+	printf("[pico] 3: SPI peripheral configured\n");
 	LCD_initDisplay();
+	printf("[pico] 4: LCD initialized\n");
 	LCD_setRotation(1); // landscape: 320x240
+	printf("[pico] 5: LCD rotation configured\n");
 
     GFX_createFramebuf();
+	printf("[pico] 6: graphics framebuffer allocated\n");
 
     struct mallinfo heap = mallinfo();
-    printf("Pico heap free: %d bytes\n", heap.fordblks);
+    printf("[pico] 7: free heap: %d bytes\n", heap.fordblks);
 
 }
 
@@ -35,6 +40,10 @@ void backend_deinit(){
 }
 
 void backend_render(uint8_t pixelbuf[Y_RESOLUTION][X_RESOLUTION], uint32_t *palette){
+    static uint32_t frame;
+    if (frame == 0)
+        printf("[pico] 10: first frame render started\n");
+
     for (int y = 0; y < Y_RESOLUTION; y++) {
         for (int x = 0; x < X_RESOLUTION; x++) {
             uint32_t color = palette[pixelbuf[y][x]];
@@ -45,6 +54,9 @@ void backend_render(uint8_t pixelbuf[Y_RESOLUTION][X_RESOLUTION], uint32_t *pale
         }
     }
     GFX_flush();
+    if (frame == 0)
+        printf("[pico] 11: first frame flushed\n");
+    frame++;
 }
 
 void backend_audio(const void *buffer, uint16_t length){
