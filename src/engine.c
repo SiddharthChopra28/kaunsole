@@ -4,7 +4,9 @@
 #include "graphics.h"
 #include "rom.h"
 #include "util.h"
+#ifndef STATIC_ROM
 #include <dlfcn.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -72,6 +74,7 @@ void mainloop(struct rom *rom) {
 }
 
 struct input prev_input = {0};
+#ifndef STATIC_ROM
 uint8_t rom_index = 0;
 uint8_t num_roms = 0;
 char rom_names[8][64];
@@ -123,7 +126,16 @@ struct rom ui_rom = {
     .draw = ui_draw,
     .running = true,
 };
+#endif
 
+#ifdef STATIC_ROM
+extern struct rom rom;
+
+int main(void) {
+    backend_init();
+    mainloop(&rom);
+}
+#else
 int main(int argc, const char **argv) {
     const char *rom_name = argv[1];
     LOG("opening: %s", rom_name);
@@ -143,3 +155,4 @@ int main(int argc, const char **argv) {
 
     // mainloop(&ui_rom);
 }
+#endif

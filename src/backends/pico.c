@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "hardware_adc/spi.h"
+#include "hardware/spi.h"
 #include "ili9341.h"
 #include "gfx.h"
 #include "../backend.h"
@@ -31,14 +31,16 @@ void backend_deinit(){
 }
 
 void backend_render(uint8_t pixelbuf[Y_RESOLUTION][X_RESOLUTION], uint32_t *palette){
-    uint32_t framebuffer[Y_RESOLUTION][X_RESOLUTION];
     for (int y = 0; y < Y_RESOLUTION; y++) {
         for (int x = 0; x < X_RESOLUTION; x++) {
-            GFX_drawPixel(x,y, pallete[pixelbuf[y][x]]);
+            uint32_t color = palette[pixelbuf[y][x]];
+            uint16_t rgb565 = ((color >> 8 & 0xf8) << 8) |
+                              ((color >> 5 & 0xfc) << 3) |
+                              (color >> 3 & 0x1f);
+            GFX_drawPixel(x, y, rgb565);
         }
     }
-
-
+    GFX_flush();
 }
 
 void backend_audio(const void *buffer, uint16_t length){
@@ -46,13 +48,17 @@ void backend_audio(const void *buffer, uint16_t length){
 }
 
 uint32_t backend_time(){
-    return uint32_t(to_ms_since_boot(get_absolute_time()));
+    return to_ms_since_boot(get_absolute_time());
 }
 
-struct input = {0};
+struct input input = {0};
 
 struct input backend_input(){
 
     return input;
 
+}
+
+void backend_sleep(uint32_t ms) {
+    sleep_ms(ms);
 }
