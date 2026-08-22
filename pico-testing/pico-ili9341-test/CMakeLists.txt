@@ -29,6 +29,7 @@ add_custom_command(
                 ${CMAKE_CURRENT_SOURCE_DIR}/../../roms/smb3/assets/smb3_chr.bin
                 ${CHR_BIN}
         COMMAND arm-none-eabi-objcopy -I binary -O elf32-littlearm -B arm
+                --rename-section .data=.rodata,alloc,load,readonly,data,contents
                 smb3_chr smb3_chr.o
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../../roms/smb3/assets/smb3_chr.bin
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
