@@ -114,23 +114,19 @@ void stream_screen(bool reverse) {
         const bool middle = obj.flags & O2_MIDDLE;
         const bool vertical = obj.flags & O2_VERTICAL;
 
-        fprintf(stderr, "o2: %b terminal %032b\n", o, terminal);
 
         uint16_t o1;
         uint8_t o1_offset = 0;
         for (uint8_t i = 0; i < height; i++) {
             if (terminal && (i == 0)) {
                 o1 = obj.start[o1_offset];
-                fprintf(stderr, "\tstarting o1 %u: %016b\n", o1_offset, o1);
                 o1_offset++;
             } else if (terminal && (i == height - 1)) {
                 if (middle && height > 2)
                     o1_offset++;
                 o1 = obj.start[o1_offset];
-                fprintf(stderr, "\tending o1 %u: %016b\n", o1_offset, o1);
             } else {
                 o1 = obj.start[o1_offset];
-                fprintf(stderr, "\tmiddle o1 %u: %016b\n", o1_offset, o1);
             }
 
             // draw o1
@@ -147,15 +143,12 @@ void stream_screen(bool reverse) {
                 uint8_t block;
                 if (j == 0) {
                     block = obj1.start;
-                    fprintf(stderr, "\t\tstart block %u: %u\n", j, block);
                     if (!o1_middle)
                         cont = false;
                 } else if (j == width - 1) {
                     block = obj1.start + (o1_terminal ? 1 : 0) + (middle ? 1 : 0);
-                    fprintf(stderr, "\t\tend block %u: %u\n", j, block);
                 } else {
                     block = obj1.start + (o1_terminal ? 1 : 0);
-                    fprintf(stderr, "\t\tmiddle block %u: %u\n", j, block);
                 }
 
                 if (vertical) {
@@ -256,7 +249,6 @@ void collide_entity(struct entity *entity, int8_t dy, int8_t dx) {
 
     }
 
-    fprintf(stderr, "block_tl %u\n", block_tl);
 
     if (block_tr != 0){
         if (block_buffer[active_screen][(sprite->y + sprite->hitbox.y - dy)/16][(sprite->x + sprite->hitbox.x)/16] == 0){
@@ -269,7 +261,6 @@ void collide_entity(struct entity *entity, int8_t dy, int8_t dx) {
         }
 
     }
-    fprintf(stderr, "block_tr %u\n", block_tr);
 
     if (block_br != 0){
         if (block_buffer[active_screen][(sprite->y + sprite->hitbox.y - dy)/16][(sprite->x + sprite->hitbox.x)/16] == 0){
@@ -281,7 +272,6 @@ void collide_entity(struct entity *entity, int8_t dy, int8_t dx) {
         }
 
     }
-    fprintf(stderr, "block_br %u\n", block_br);
 
     if (block_bl != 0){
         if (block_buffer[active_screen][(sprite->y + sprite->hitbox.y - dy)/16][(sprite->x + sprite->hitbox.x)/16] == 0){
@@ -293,7 +283,6 @@ void collide_entity(struct entity *entity, int8_t dy, int8_t dx) {
         }
 
     }
-    fprintf(stderr, "block_bl %u\n", block_bl);
 }
 
 // CAMERA
@@ -332,12 +321,10 @@ void camera_move(int16_t y, int16_t x) {
     if (next_x < 0) {
         next_x = next_x + 256;
         active_screen = (active_screen - 1 + N_SCREENS) % N_SCREENS;
-        fprintf(stderr, "prev screen\n");
         stream_screen(true); 
     } else if (255 < next_x) {
         next_x = next_x - 256;
         active_screen = (active_screen + 1) % N_SCREENS;
-        fprintf(stderr, "next screen\n");
         stream_screen(false); 
     }
     camera_x = next_x;
@@ -365,4 +352,3 @@ void camera_draw() {
     }
     // fprintf(stderr, "\n");
 }
-

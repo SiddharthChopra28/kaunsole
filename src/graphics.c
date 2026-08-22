@@ -26,10 +26,6 @@ void draw_tile(uint16_t tile, uint16_t y, uint16_t x, uint8_t palette,
 
     tile &= 0b0011111111111111;
 
-    if (!tile) {
-        fprintf(stderr, "drawing not tile\n");
-    }
-
     // size_t offset = (size_t)tile * TILE_SIZE * BPP;
     // fprintf(stderr, "%zu\n", (size_t)tile * 16);
 
@@ -146,4 +142,3 @@ void draw_sprite(struct sprite *sprite) {
 void next_frame(struct sprite *sprite) {
     sprite->frame = (sprite->frame + 1) % sprite->texture->num_frames;
 }
-

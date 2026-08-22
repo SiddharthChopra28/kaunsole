@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <malloc.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "ili9341.h"
@@ -22,7 +23,10 @@ void backend_init(){
 	LCD_initDisplay();
 	LCD_setRotation(1); // landscape: 320x240
 
-	GFX_createFramebuf();
+    GFX_createFramebuf();
+
+    struct mallinfo heap = mallinfo();
+    printf("Pico heap free: %d bytes\n", heap.fordblks);
 
 }
 
@@ -34,9 +38,9 @@ void backend_render(uint8_t pixelbuf[Y_RESOLUTION][X_RESOLUTION], uint32_t *pale
     for (int y = 0; y < Y_RESOLUTION; y++) {
         for (int x = 0; x < X_RESOLUTION; x++) {
             uint32_t color = palette[pixelbuf[y][x]];
-            uint16_t rgb565 = ((color >> 8 & 0xf8) << 8) |
-                              ((color >> 5 & 0xfc) << 3) |
-                              (color >> 3 & 0x1f);
+            uint16_t rgb565 = ((color >> 16 & 0xf8) << 8) |
+                              ((color >> 8 & 0xfc) << 3) |
+                              ((color & 0xf8) >> 3);
             GFX_drawPixel(x, y, rgb565);
         }
     }
