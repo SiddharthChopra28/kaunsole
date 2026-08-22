@@ -49,6 +49,7 @@ target_compile_definitions(pico_ili9341_test PRIVATE STATIC_ROM)
 
 target_link_libraries(pico_ili9341_test pico_stdlib ili9341 gfx)
 
-pico_enable_stdio_uart(pico_ili9341_test 1)
+pico_enable_stdio_uart(pico_ili9341_test 0)
+pico_enable_stdio_usb(pico_ili9341_test 1)
 
 pico_add_extra_outputs(pico_ili9341_test)
