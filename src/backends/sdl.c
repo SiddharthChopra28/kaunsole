@@ -7,8 +7,8 @@
 #include "../backend.h"
 #include "../graphics.h"
 
-#define SDL_WINDOW_HEIGHT 256
-#define SDL_WINDOW_WIDTH 256
+#define SDL_WINDOW_HEIGHT 240
+#define SDL_WINDOW_WIDTH 320
 // #define SDL_WINDOW_HEIGHT 1080
 // #define SDL_WINDOW_WIDTH 1920
 

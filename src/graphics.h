@@ -3,10 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define X_RESOLUTION 256
-#define Y_RESOLUTION 256
-// #define X_RESOLUTION 320
-// #define Y_RESOLUTION 240
+// #define X_RESOLUTION 256
+// #define Y_RESOLUTION 256
+#define X_RESOLUTION 320
+#define Y_RESOLUTION 240
 
 #define TILE_SIZE 8
 #define BLOCK_SIZE (2 * TILE_SIZE)
